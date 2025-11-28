@@ -7,11 +7,17 @@ import { ArrowLeft } from 'lucide-react'
 import { heroJourneyStages } from '@/data/hero-journey-stages'
 import dynamic from 'next/dynamic'
 
-// Completely disable SSR for 3D components
-const Journey3DViewer = dynamic(() => import('@/components/Journey3DScene'), { 
-  ssr: false,
-  loading: () => <div className="flex items-center justify-center h-full text-white">Loading 3D scene...</div>
-})
+// Completely disable SSR for 3D components - only load on client
+const Journey3DViewer = dynamic(
+  () => import('@/components/Journey3DScene').catch(() => {
+    // Fallback if 3D components fail to load
+    return { default: () => <div className="flex items-center justify-center h-full text-white">3D visualization unavailable</div> };
+  }), 
+  { 
+    ssr: false,
+    loading: () => <div className="flex items-center justify-center h-full text-white">Loading 3D scene...</div>
+  }
+)
 
 export default function Journey3DPage() {
   const router = useRouter()

@@ -7,7 +7,8 @@ const nextConfig = {
       config.externals = config.externals || [];
       config.externals.push('better-sqlite3');
     }
-    // Fix for Three.js - exclude from client bundle issues
+    
+    // Fix for Three.js - exclude problematic modules
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
@@ -16,6 +17,19 @@ const nextConfig = {
         crypto: false,
       };
     }
+    
+    // Ignore Three.js binary files during build
+    config.module.rules.push({
+      test: /\.(glb|gltf|bin|wasm)$/,
+      type: 'asset/resource',
+    });
+    
+    // Ignore Three.js module parsing issues
+    config.ignoreWarnings = [
+      { module: /node_modules\/three/ },
+      { module: /node_modules\/@react-three/ },
+    ];
+    
     return config;
   },
   // Skip building better-sqlite3 during build
